@@ -1,4 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+//added this function to shuffle the order of the choices
+function shuffleArray(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
 
 const Quiz = ({ questions }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -10,12 +20,21 @@ const Quiz = ({ questions }) => {
     wrongAnswers: 0,
   });
   const [showResult, setShowResult] = useState(false);
+  const [shuffledChoices, setShuffledChoices] = useState([]);
 
-  const { question, choices, correctAnswer } = questions[currentQuestion];
+  const { question, incorrect_answers, correct_answer } = questions[currentQuestion]; // used to say const {question, choices, correctAnswer} = questions[currentQuestion]; but that was wrong, have to use the names from the API for the variables here. If you want to change variable names you would have to do const {question, incorrect_answers: choices, correct_answer: correctAnswer} = questions[currentQuestion]; in this method you would be able to rename the variables and use {questions, choices and correctAnswer}
 
-  const onAnswerClick = (selectedAnswer, index) => {
+  const choices = [...incorrect_answers, correct_answer]; // Combine incorrect and correct answers into one array
+
+  useEffect(() => {
+    // Shuffle choices only when the component mounts or when the question changes
+    const shuffledChoices = shuffleArray(choices);
+    setShuffledChoices(shuffledChoices);
+  }, [currentQuestion, questions]);
+
+  const onAnswerClick = (selectedAnswer, index,) => {
     setAnswerIndex(index);
-    if (selectedAnswer === correctAnswer) {
+    if (selectedAnswer === correct_answer) {
       setAnswerCorrect(true);
     } else {
       setAnswerCorrect(false);
@@ -45,6 +64,8 @@ const Quiz = ({ questions }) => {
     }
   };
 
+  
+
   return (
     <div className="quiz-container">
       {!showResult ? (
@@ -55,7 +76,7 @@ const Quiz = ({ questions }) => {
           <span className="total-questions">/{questions.length}</span>
           <h2>{question}</h2>
           <ul>
-            {choices.map((answer, index) => (
+            { shuffledChoices.map((answer, index) => (
               <li
                 onClick={() => onAnswerClick(answer, index)}
                 key={answer}

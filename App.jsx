@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Quiz from "./Quiz";
 
 function App() {
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState(null);
 
   useEffect(() => {
     // Fetch data when the component mounts
@@ -21,7 +21,12 @@ function App() {
     }
   };
 
-  return <Quiz questions={questions} />;
+  return (
+    <div className="App">
+    {questions ? <Quiz questions={questions} /> : <h2>Loading...</h2>
+    /* This prevents the Quiz component from rendering before the data from API is returned, once all of the data is available, then Quiz component can render, otherwise you get an error stating  "questions" is undefined */}
+    </div> 
+  );
 }
 
 export default App;
